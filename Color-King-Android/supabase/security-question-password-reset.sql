@@ -36,7 +36,7 @@ create or replace function public.ck_verify_security_answer(
   p_phone text, p_question text, p_answer text
 ) returns boolean language plpgsql security definer
 set search_path = public, extensions, auth
-as $
+as $$
 declare u_id uuid; stored_q text; stored_hash text; tries integer;
 begin
   if p_phone is null or p_question is null or p_answer is null then return false; end if;
@@ -55,7 +55,7 @@ begin
     return false;
   end if;
   return true;
-end; $;
+end; $$;
 
 create or replace function public.ck_reset_password_by_security(
   p_phone text, p_question text, p_answer text, p_new_password text
