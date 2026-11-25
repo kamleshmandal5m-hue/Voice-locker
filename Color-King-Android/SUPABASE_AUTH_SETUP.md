@@ -1,22 +1,18 @@
 # Color King phone authentication setup
 
-The Android app now includes Supabase Phone Auth:
-- Register with an Indian mobile number and password.
-- Supabase sends an SMS OTP; verify it to complete registration.
-- Later sign in using the same mobile number and password.
-- Sessions are stored locally and refreshed through Supabase Auth.
+The Android app supports:
+- Register with an Indian mobile number and password, then verify the SMS OTP.
+- Log in to an existing account using mobile number + SMS OTP (passwordless).
+- Supabase Auth sessions are stored locally and refreshed through Supabase Auth.
 - Passwords are sent only to Supabase Auth over HTTPS; the app does not store passwords.
 
-## One-time owner setup (required before real SMS works)
+## One-time owner setup required for real SMS delivery
 
-1. Create a project at https://supabase.com/dashboard.
-2. In Project Settings > API, copy the Project URL and anon/public key.
-3. Edit `app/src/main/assets/auth-config.js`:
-   - Set `url` to the Project URL (for example, `https://abcdefgh.supabase.co`).
-   - Set `anonKey` to the anon/public key. Never use the service_role key.
-4. In Authentication > Sign In / Providers, enable Phone authentication and password sign-in.
-5. Configure an SMS provider in Supabase Auth > SMS (for example Twilio or another supported provider), including its credentials and message template.
-6. Enable phone confirmation so sign-up requires SMS OTP.
-7. Rebuild the APK from GitHub Actions and test with a phone number you control.
+1. Open the ColorKing project in https://supabase.com/dashboard.
+2. Go to Authentication > Sign In / Providers and enable Phone authentication.
+3. In Authentication > SMS (or the SMS provider settings), configure a supported SMS provider such as Twilio, including its credentials and message template. Provider secrets must be entered only in the Supabase dashboard, never in the Android app or GitHub.
+4. Enable phone confirmation if you want registration to require OTP verification.
+5. Ensure your SMS provider supports delivery to India (+91) and that any required sender ID, template, balance, and country permissions are configured.
+6. Rebuild the APK from GitHub Actions and test with a phone number you control.
 
-Supabase SMS delivery may require a paid SMS provider and applicable country/anti-abuse settings. Until the project URL, anon key, and SMS provider are configured, the app deliberately blocks login and displays a setup message. This is not a fake/local OTP system.
+The app's LOGIN tab sends an OTP for an existing phone account (it does not create a new account). REGISTER sends an OTP and creates a phone account after verification. Real SMS delivery cannot work until the SMS provider is configured in Supabase; a publishable key and project URL alone are not enough.
