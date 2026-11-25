@@ -1,4 +1,4 @@
--- Color King account security. Run once in Supabase SQL Editor.
+-- Color King account security for email-auth accounts with mobile-number aliases. Run in Supabase SQL Editor.
 create extension if not exists pgcrypto with schema extensions;
 
 create table if not exists public.ck_account_security (
@@ -44,7 +44,7 @@ begin
     where phone=p_phone and attempted_at > now()-interval '1 hour';
   if tries >= 5 then return false; end if;
   insert into public.ck_password_reset_attempts(phone) values(p_phone);
-  select id into u_id from auth.users where phone=p_phone limit 1;
+  select id into u_id from auth.users where email=('ck' || p_phone || '@users.colorking.invalid') limit 1;
   if u_id is null then return false; end if;
   select question, answer_hash into stored_q, stored_hash
     from public.ck_account_security where user_id=u_id;
