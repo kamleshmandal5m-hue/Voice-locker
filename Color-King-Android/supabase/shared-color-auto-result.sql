@@ -55,10 +55,21 @@ begin
     return null;
   end if;
 
-  -- Include every available color, even when nobody selected it (count = 0).
+  -- Red and Green are the two always-compared choices.
+  -- Violet joins the comparison only when at least one user selected Violet
+  -- in this period, so an unused Violet cannot win automatically.
   with color_counts as (
     select c.color, count(p.id) as n
-    from (values ('Red'), ('Green'), ('Violet')) as c(color)
+    from (
+      select 'Red'::text as color
+      union all select 'Green'
+      union all
+      select 'Violet'
+      where exists (
+        select 1 from public.ck_color_picks
+        where period = p_period and color = 'Violet'
+      )
+    ) c
     left join public.ck_color_picks p
       on p.period = p_period and p.color = c.color
     group by c.color
@@ -67,7 +78,16 @@ begin
 
   with color_counts as (
     select c.color, count(p.id) as n
-    from (values ('Red'), ('Green'), ('Violet')) as c(color)
+    from (
+      select 'Red'::text as color
+      union all select 'Green'
+      union all
+      select 'Violet'
+      where exists (
+        select 1 from public.ck_color_picks
+        where period = p_period and color = 'Violet'
+      )
+    ) c
     left join public.ck_color_picks p
       on p.period = p_period and p.color = c.color
     group by c.color
@@ -78,14 +98,11 @@ begin
 
   if cardinality(least_colors) = 1 then
     return least_colors[1];
-  elsif least_colors @> array['Red','Green']::text[]
-     and cardinality(least_colors) = 2 then
+  elsif least_colors @> array['Red','Green']::text[] and cardinality(least_colors) = 2 then
     return 'Yellow';
-  elsif least_colors @> array['Red','Violet']::text[]
-     and cardinality(least_colors) = 2 then
+  elsif least_colors @> array['Red','Violet']::text[] and cardinality(least_colors) = 2 then
     return 'Magenta';
-  elsif least_colors @> array['Green','Violet']::text[]
-     and cardinality(least_colors) = 2 then
+  elsif least_colors @> array['Green','Violet']::text[] and cardinality(least_colors) = 2 then
     return 'Cyan';
   else
     return 'White';
