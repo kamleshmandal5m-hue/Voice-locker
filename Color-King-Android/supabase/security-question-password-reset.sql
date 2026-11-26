@@ -43,9 +43,13 @@ begin
      or length(trim(coalesce(p_answer,''))) < 2 then
     raise exception 'A security question and answer are required';
   end if;
-  insert into public.ck_account_security(user_id, question, answer_hash)
-  values(auth.uid(), trim(p_question), extensions.crypt(lower(trim(p_answer)), extensions.gen_salt('bf', 12)))
-  on conflict(user_id) do update set question=excluded.question, answer_hash=excluded.answer_hash, created_at=now();
+  insert into public.ck_account_security(user_id, phone, question, answer_hash)
+  select auth.uid(), u.raw_user_meta_data->>'phone', trim(p_question),
+         extensions.crypt(lower(trim(p_answer)), extensions.gen_salt('bf', 12))
+  from auth.users u where u.id=auth.uid()
+  on conflict(user_id) do update
+    set phone=excluded.phone, question=excluded.question,
+        answer_hash=excluded.answer_hash, created_at=now();
   return true;
 end; $$;
 
