@@ -67,11 +67,11 @@ begin
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  -- Count each account once per color in this round; stake amount is ignored.
-  select count(distinct user_id) into red_count
+  -- Count every selected unit, including repeat selections by the same account; ignore stake amount.
+  select count(*) into red_count
   from public.ck_color_picks where period = p_period and color = 'Red';
 
-  select count(distinct user_id) into green_count
+  select count(*) into green_count
   from public.ck_color_picks where period = p_period and color = 'Green';
 
   -- Violet-only selections do not count as a Red/Green tie.
