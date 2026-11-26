@@ -15,10 +15,13 @@ alter table public.ck_color_picks
 alter table public.ck_color_picks enable row level security;
 revoke all on public.ck_color_picks from anon, authenticated;
 
+drop function if exists public.ck_submit_color_pick(bigint,text,integer);
+
 create or replace function public.ck_submit_color_pick(
   p_period bigint,
   p_color text,
-  p_amount integer
+  p_amount integer,
+  p_quantity integer default 1
 ) returns boolean
 language plpgsql
 security definer
@@ -30,15 +33,18 @@ begin
     raise exception 'Login required';
   end if;
   if p_period is null or p_color not in ('Red','Green','Violet')
-     or p_amount is null or p_amount <= 0 then
+     or p_amount is null or p_amount <= 0
+     or p_quantity is null or p_quantity < 1 or p_quantity > 99 then
     raise exception 'Invalid color selection';
   end if;
 
   -- Serialize inserts for this account and round; every repeat selection is counted.
   perform pg_advisory_xact_lock(hashtextextended(auth.uid()::text || ':' || p_period::text, 0));
 
+  -- Each selected Number is a separate vote; amount/stake never changes vote count.
   insert into public.ck_color_picks(user_id, period, color, amount)
-  values (auth.uid(), p_period, p_color, p_amount);
+  select auth.uid(), p_period, p_color, p_amount
+  from generate_series(1, p_quantity);
 
   return true;
 end;
@@ -89,8 +95,8 @@ begin
 end;
 $function$;
 
-revoke all on function public.ck_submit_color_pick(bigint,text,integer) from public, anon;
-grant execute on function public.ck_submit_color_pick(bigint,text,integer) to authenticated;
+revoke all on function public.ck_submit_color_pick(bigint,text,integer,integer) from public, anon;
+grant execute on function public.ck_submit_color_pick(bigint,text,integer,integer) to authenticated;
 revoke all on function public.ck_get_auto_color_result(bigint) from public, anon;
 grant execute on function public.ck_get_auto_color_result(bigint) to authenticated;
 
