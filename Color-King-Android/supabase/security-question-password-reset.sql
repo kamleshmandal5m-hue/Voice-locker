@@ -97,3 +97,6 @@ revoke all on function public.ck_reset_password_by_security(text,text,text) from
 grant execute on function public.ck_reset_password_by_security(text,text,text) to anon;
 revoke all on function public.ck_verify_security_answer(text,text) from public, authenticated;
 grant execute on function public.ck_verify_security_answer(text,text) to anon;
+
+-- Refresh PostgREST function metadata after applying this migration.
+NOTIFY pgrst, 'reload schema';
