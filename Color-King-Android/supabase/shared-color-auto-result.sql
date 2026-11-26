@@ -71,36 +71,31 @@ begin
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  -- If only one color has any votes, return one of the other two colors.
-  if (select count(distinct color) from public.ck_color_picks where period = p_period) = 1 then
-    select array_agg(c.color order by c.color) into least_colors
-    from unnest(array['Red','Green','Violet']::text[]) as c(color)
-    where c.color not in (
-      select distinct color from public.ck_color_picks where period = p_period
-    );
-    return least_colors[1 + floor(random() * cardinality(least_colors))::integer];
-  end if;
-
-  -- With two or three selected colors, compare unique people per color.
+  -- Always compare all three colors. A color with no votes has count zero.
   with color_counts as (
-    select color, count(distinct user_id) as n
-    from public.ck_color_picks
-    where period = p_period
-    group by color
+    select colors.color, count(distinct picks.user_id) as n
+    from unnest(array['Red','Green','Violet']::text[]) as colors(color)
+    left join public.ck_color_picks as picks
+      on picks.color = colors.color
+     and picks.period = p_period
+    group by colors.color
   )
   select min(n) into least_count from color_counts;
 
+  -- Randomly choose among every color tied for the lowest count,
+  -- including colors with zero selections.
   with color_counts as (
-    select color, count(distinct user_id) as n
-    from public.ck_color_picks
-    where period = p_period
-    group by color
+    select colors.color, count(distinct picks.user_id) as n
+    from unnest(array['Red','Green','Violet']::text[]) as colors(color)
+    left join public.ck_color_picks as picks
+      on picks.color = colors.color
+     and picks.period = p_period
+    group by colors.color
   )
   select array_agg(color order by color) into least_colors
   from color_counts
   where n = least_count;
 
-  -- Ties are resolved randomly among the least-selected colors.
   return least_colors[1 + floor(random() * cardinality(least_colors))::integer];
 end;
 $function$;
