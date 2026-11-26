@@ -81,8 +81,9 @@ begin
   end if;
 
   if red_count = green_count then
-    -- Always return exactly one color; Violet is never part of the result.
-    return case when random() < 0.5 then 'Red' else 'Green' end;
+    -- When Red and Green counts are tied, choose one base color with Violet.
+    low_color := case when random() < 0.5 then 'Red' else 'Green' end;
+    return low_color || '+Violet';
   elsif red_count > green_count then
     low_color := 'Green';
   else
