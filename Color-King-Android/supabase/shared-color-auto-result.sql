@@ -61,33 +61,34 @@ as $function$
 declare
   red_count bigint;
   green_count bigint;
+  low_color text;
 begin
-  if p_period is null then
-    return null;
-  end if;
+  if p_period is null then return null; end if;
 
-  -- Preserve the no-vote behavior: randomly choose Red or Green, never Violet.
   if not exists (select 1 from public.ck_color_picks where period = p_period) then
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  -- Count unique people, not the number or amount of their selections.
   select count(distinct user_id) into red_count
-  from public.ck_color_picks
-  where period = p_period and color = 'Red';
+  from public.ck_color_picks where period = p_period and color = 'Red';
 
   select count(distinct user_id) into green_count
-  from public.ck_color_picks
-  where period = p_period and color = 'Green';
+  from public.ck_color_picks where period = p_period and color = 'Green';
 
-  -- Violet is returned only when Red and Green have equal people counts.
   if red_count = green_count then
-    return 'Violet';
+    low_color := case when random() < 0.5 then 'Red' else 'Green' end;
+    return low_color || '+Violet';
   elsif red_count > green_count then
-    return 'Green';
+    low_color := 'Green';
   else
-    return 'Red';
+    low_color := 'Red';
   end if;
+
+  -- Add Violet only for a very close count: a difference of one person or less.
+  if abs(red_count - green_count) <= 1 then
+    return low_color || '+Violet';
+  end if;
+  return low_color;
 end;
 $function$;
 
