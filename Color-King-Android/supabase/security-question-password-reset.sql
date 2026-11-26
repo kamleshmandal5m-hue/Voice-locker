@@ -37,7 +37,7 @@ alter table public.ck_password_reset_attempts enable row level security;
 create or replace function public.ck_set_security_question(p_question text, p_answer text)
 returns boolean language plpgsql security definer
 set search_path = public, extensions, auth
-as $$
+as $$$
 begin
   if auth.uid() is null or length(trim(coalesce(p_question,''))) < 3
      or length(trim(coalesce(p_answer,''))) < 2 then
@@ -66,7 +66,7 @@ as $
     join public.ck_account_security s on s.user_id=u.id
     where s.phone = p_phone
   );
-$;
+$$;
 
 create or replace function public.ck_verify_security_answer(
   p_phone text, p_answer text
