@@ -64,7 +64,7 @@ as $
   select exists (
     select 1 from auth.users u
     join public.ck_account_security s on s.user_id=u.id
-    where u.email=('ck' || p_phone || '@users.colorking.invalid')
+    where s.phone = p_phone
   );
 $;
 
