@@ -83,10 +83,10 @@ begin
   -- Violet is returned only when Red and Green have equal people counts.
   if red_count = green_count then
     return 'Violet';
-  elsif red_count < green_count then
-    return 'Red';
-  else
+  elsif red_count > green_count then
     return 'Green';
+  else
+    return 'Red';
   end if;
 end;
 $function$;
