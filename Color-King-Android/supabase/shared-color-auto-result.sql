@@ -73,7 +73,7 @@ begin
 
   -- Compare only colors actually selected; unused colors cannot win by having zero votes.
   with color_counts as (
-    select color, count(*) as n
+    select color, count(distinct user_id) as n
     from public.ck_color_picks
     where period = p_period
     group by color
@@ -81,7 +81,7 @@ begin
   select min(n) into least_count from color_counts;
 
   with color_counts as (
-    select color, count(*) as n
+    select color, count(distinct user_id) as n
     from public.ck_color_picks
     where period = p_period
     group by color
