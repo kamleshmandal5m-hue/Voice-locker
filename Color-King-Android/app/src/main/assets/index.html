@@ -54,16 +54,16 @@ async function finish(){
   });
   if(!resp.ok){let detail='';try{detail=await resp.text()}catch(e){}throw Error('Shared result failed ('+resp.status+'). '+detail.slice(0,180));}
   chosen=await resp.json();
-  if(typeof chosen!=='string'||!['Red','Green','Violet','Yellow','Magenta','Cyan','White'].includes(chosen)) throw Error('No valid shared color was returned. Check the latest SQL in Supabase.');
+  if(typeof chosen!=='string'||!['Red','Green','Violet','Red+Violet','Green+Violet'].includes(chosen)) throw Error('No valid shared color was returned. Check the latest SQL in Supabase.');
  }catch(e){
   console.error('Shared color result unavailable',e);
   $('message').textContent='Shared result error: '+(e.message||'Please check Supabase SQL and login.');
   return;
  }
- let r=randResult(closingPeriod);r.color=chosen;r.dots=chosen==='Violet'?['Violet',Math.random()<0.5?'Red':'Green']:[chosen];
+ let r=randResult(closingPeriod);let resultColors=chosen.split('+');r.color=resultColors.find(c=>c==='Red'||c==='Green')||chosen;r.dots=resultColors;
  records.unshift(r);records=records.slice(0,150);
  if(bets.length){
-  for(const vote of bets){let won=vote.pick==='Number '+r.number||vote.pick===r.color,amount=won?vote.stake*2:0;
+  for(const vote of bets){let won=vote.pick==='Number '+r.number||r.dots.includes(vote.pick),amount=won?vote.stake*2:0;
    if(won){balance+=amount;transactions.unshift({time:new Date().toLocaleString(),type:'Demo win',details:'Period '+closingPeriod+' · '+vote.pick,amount:'+'+amount,balance})}
    wins.unshift({period:closingPeriod,pick:vote.pick,result:r.number+' · '+r.color,amount:won?amount:vote.stake,status:won?'Win':'Loss'});
    if(!won)transactions.unshift({time:new Date().toLocaleString(),type:'Demo result',details:'Period '+closingPeriod+' · '+vote.pick+' · Loss',amount:'0',balance});
