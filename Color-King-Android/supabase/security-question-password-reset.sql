@@ -53,6 +53,17 @@ end; $$;
 drop function if exists public.ck_verify_security_answer(text,text,text);
 drop function if exists public.ck_reset_password_by_security(text,text,text,text);
 
+create or replace function public.ck_is_registered_phone(p_phone text)
+returns boolean language sql security definer
+set search_path = public, auth
+as $
+  select exists (
+    select 1 from auth.users u
+    join public.ck_account_security s on s.user_id=u.id
+    where u.email=('ck' || p_phone || '@users.colorking.invalid')
+  );
+$;
+
 create or replace function public.ck_verify_security_answer(
   p_phone text, p_answer text
 ) returns boolean language plpgsql security definer
@@ -110,6 +121,8 @@ revoke all on function public.ck_set_security_question(text,text) from public, a
 grant execute on function public.ck_set_security_question(text,text) to authenticated;
 revoke all on function public.ck_reset_password_by_security(text,text,text) from public, authenticated;
 grant execute on function public.ck_reset_password_by_security(text,text,text) to anon;
+revoke all on function public.ck_is_registered_phone(text) from public, authenticated;
+grant execute on function public.ck_is_registered_phone(text) to anon;
 revoke all on function public.ck_verify_security_answer(text,text) from public, authenticated;
 grant execute on function public.ck_verify_security_answer(text,text) to anon;
 
