@@ -71,7 +71,17 @@ begin
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  -- Compare only colors actually selected; unused colors cannot win by having zero votes.
+  -- If only one color has any votes, return one of the other two colors.
+  if (select count(distinct color) from public.ck_color_picks where period = p_period) = 1 then
+    select array_agg(c.color order by c.color) into least_colors
+    from unnest(array['Red','Green','Violet']::text[]) as c(color)
+    where c.color not in (
+      select distinct color from public.ck_color_picks where period = p_period
+    );
+    return least_colors[1 + floor(random() * cardinality(least_colors))::integer];
+  end if;
+
+  -- With two or three selected colors, compare unique people per color.
   with color_counts as (
     select color, count(distinct user_id) as n
     from public.ck_color_picks
@@ -90,7 +100,7 @@ begin
   from color_counts
   where n = least_count;
 
-  -- If multiple colors tie for the minimum, return one tied color at random.
+  -- Ties are resolved randomly among the least-selected colors.
   return least_colors[1 + floor(random() * cardinality(least_colors))::integer];
 end;
 $function$;
