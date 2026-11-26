@@ -1,4 +1,5 @@
--- Color King account security for email-auth accounts with mobile-number aliases. Run in Supabase SQL Editor.
+-- Color King account security for email-auth accounts with mobile-number aliases.
+-- Run this updated script in Supabase SQL Editor after deploying the matching app build.
 create extension if not exists pgcrypto with schema extensions;
 
 create table if not exists public.ck_account_security (
@@ -16,6 +17,7 @@ create table if not exists public.ck_password_reset_attempts (
   attempted_at timestamptz not null default now()
 );
 revoke all on public.ck_password_reset_attempts from anon, authenticated;
+alter table public.ck_password_reset_attempts enable row level security;
 
 create or replace function public.ck_set_security_question(p_question text, p_answer text)
 returns boolean language plpgsql security definer
@@ -32,14 +34,18 @@ begin
   return true;
 end; $$;
 
+-- Remove the earlier versions that required users to type the question again.
+drop function if exists public.ck_verify_security_answer(text,text,text);
+drop function if exists public.ck_reset_password_by_security(text,text,text,text);
+
 create or replace function public.ck_verify_security_answer(
-  p_phone text, p_question text, p_answer text
+  p_phone text, p_answer text
 ) returns boolean language plpgsql security definer
 set search_path = public, extensions, auth
 as $$
-declare u_id uuid; stored_q text; stored_hash text; tries integer;
+declare u_id uuid; stored_hash text; tries integer;
 begin
-  if p_phone is null or p_question is null or p_answer is null then return false; end if;
+  if p_phone is null or p_answer is null then return false; end if;
   select count(*) into tries from public.ck_password_reset_attempts
     where phone=p_phone and attempted_at > now()-interval '1 hour';
   if tries >= 5 then return false; end if;
@@ -47,37 +53,38 @@ begin
   select id into u_id from auth.users
     where email=('ck' || p_phone || '@users.colorking.invalid') limit 1;
   if u_id is null then return false; end if;
-  select question, answer_hash into stored_q, stored_hash
+  select answer_hash into stored_hash
     from public.ck_account_security where user_id=u_id;
-  if stored_hash is null
-     or lower(trim(stored_q)) <> lower(trim(coalesce(p_question,'')))
-     or stored_hash <> extensions.crypt(lower(trim(coalesce(p_answer,''))), stored_hash) then
+  if stored_hash is null or
+     stored_hash <> extensions.crypt(lower(trim(coalesce(p_answer,''))), stored_hash) then
     return false;
   end if;
   return true;
 end; $$;
 
 create or replace function public.ck_reset_password_by_security(
-  p_phone text, p_question text, p_answer text, p_new_password text
+  p_phone text, p_answer text, p_new_password text
 ) returns boolean language plpgsql security definer
 set search_path = public, extensions, auth
 as $$
-declare u_id uuid; stored_q text; stored_hash text; tries integer;
+declare u_id uuid; stored_hash text; tries integer;
 begin
-  if length(coalesce(p_new_password,'')) < 8 then return false; end if;
+  if p_phone is null or p_answer is null or length(coalesce(p_new_password,'')) < 8 then return false; end if;
   select count(*) into tries from public.ck_password_reset_attempts
     where phone=p_phone and attempted_at > now()-interval '1 hour';
   if tries >= 5 then return false; end if;
   insert into public.ck_password_reset_attempts(phone) values(p_phone);
-  select id into u_id from auth.users where email=('ck' || p_phone || '@users.colorking.invalid') limit 1;
+  select id into u_id from auth.users
+    where email=('ck' || p_phone || '@users.colorking.invalid') limit 1;
   if u_id is null then return false; end if;
-  select question, answer_hash into stored_q, stored_hash
+  select answer_hash into stored_hash
     from public.ck_account_security where user_id=u_id;
-  if stored_hash is null or stored_q <> trim(coalesce(p_question,'')) or
+  if stored_hash is null or
      stored_hash <> extensions.crypt(lower(trim(coalesce(p_answer,''))), stored_hash) then
     return false;
   end if;
-  update auth.users set encrypted_password=extensions.crypt(p_new_password, extensions.gen_salt('bf')), updated_at=now()
+  update auth.users
+    set encrypted_password=extensions.crypt(p_new_password, extensions.gen_salt('bf')), updated_at=now()
     where id=u_id;
   delete from public.ck_password_reset_attempts
     where phone=p_phone and attempted_at < now()-interval '1 hour';
@@ -86,8 +93,7 @@ end; $$;
 
 revoke all on function public.ck_set_security_question(text,text) from public, anon;
 grant execute on function public.ck_set_security_question(text,text) to authenticated;
-revoke all on function public.ck_reset_password_by_security(text,text,text,text) from public, authenticated;
-grant execute on function public.ck_reset_password_by_security(text,text,text,text) to anon;
-
-revoke all on function public.ck_verify_security_answer(text,text,text) from public, authenticated;
-grant execute on function public.ck_verify_security_answer(text,text,text) to anon;
+revoke all on function public.ck_reset_password_by_security(text,text,text) from public, authenticated;
+grant execute on function public.ck_reset_password_by_security(text,text,text) to anon;
+revoke all on function public.ck_verify_security_answer(text,text) from public, authenticated;
+grant execute on function public.ck_verify_security_answer(text,text) to anon;
