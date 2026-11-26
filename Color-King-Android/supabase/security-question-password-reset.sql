@@ -38,6 +38,7 @@ create or replace function public.ck_set_security_question(p_question text, p_an
 returns boolean language plpgsql security definer
 set search_path = public, extensions, auth
 as $
+
 begin
   if auth.uid() is null or length(trim(coalesce(p_question,''))) < 3
      or length(trim(coalesce(p_answer,''))) < 2 then
