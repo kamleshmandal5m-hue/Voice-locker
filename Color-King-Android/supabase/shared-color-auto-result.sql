@@ -1,4 +1,4 @@
--- Shared Color King demo picks: up to four votes per user per 10-second period.
+-- Shared Color King demo picks: count every selection in the current 60-second round.
 -- Result is one of Red, Green, Violet only; no mixed colors are returned.
 
 create table if not exists public.ck_color_picks (
@@ -25,7 +25,6 @@ security definer
 set search_path = public, auth
 as $function$
 declare
-  vote_count integer;
 begin
   if auth.uid() is null then
     raise exception 'Login required';
@@ -35,15 +34,8 @@ begin
     raise exception 'Invalid color selection';
   end if;
 
-  -- Serialize submissions for this account and round to prevent exceeding four votes.
+  -- Serialize inserts for this account and round; every repeat selection is counted.
   perform pg_advisory_xact_lock(hashtextextended(auth.uid()::text || ':' || p_period::text, 0));
-  select count(*) into vote_count
-  from public.ck_color_picks
-  where user_id = auth.uid() and period = p_period;
-
-  if vote_count >= 4 then
-    raise exception 'Maximum four votes allowed in one round';
-  end if;
 
   insert into public.ck_color_picks(user_id, period, color, amount)
   values (auth.uid(), p_period, p_color, p_amount);
