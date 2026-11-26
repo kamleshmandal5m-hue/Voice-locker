@@ -60,7 +60,7 @@ drop function if exists public.ck_reset_password_by_security(text,text,text,text
 create or replace function public.ck_is_registered_phone(p_phone text)
 returns boolean language sql security definer
 set search_path = public, auth
-as $
+as $$
   select exists (
     select 1 from auth.users u
     join public.ck_account_security s on s.user_id=u.id
