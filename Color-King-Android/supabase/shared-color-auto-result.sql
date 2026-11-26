@@ -75,6 +75,11 @@ begin
   select count(distinct user_id) into green_count
   from public.ck_color_picks where period = p_period and color = 'Green';
 
+  -- Violet-only selections do not count as a Red/Green tie.
+  if red_count = 0 and green_count = 0 then
+    return case when random() < 0.5 then 'Red' else 'Green' end;
+  end if;
+
   if red_count = green_count then
     low_color := case when random() < 0.5 then 'Red' else 'Green' end;
     return low_color || '+Violet';
