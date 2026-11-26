@@ -11,6 +11,21 @@ create table if not exists public.ck_account_security (
 alter table public.ck_account_security enable row level security;
 revoke all on public.ck_account_security from anon, authenticated;
 
+-- Upgrade older installations where the table already existed without phone.
+alter table public.ck_account_security
+  add column if not exists phone text;
+
+update public.ck_account_security s
+set phone = u.raw_user_meta_data->>'phone'
+from auth.users u
+where u.id = s.user_id
+  and s.phone is null
+  and nullif(u.raw_user_meta_data->>'phone','') is not null;
+
+create unique index if not exists ck_account_security_phone_uidx
+  on public.ck_account_security(phone)
+  where phone is not null;
+
 create table if not exists public.ck_password_reset_attempts (
   id bigserial primary key,
   phone text not null,
