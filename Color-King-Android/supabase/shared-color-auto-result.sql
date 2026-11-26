@@ -1,5 +1,5 @@
--- Shared Color King demo picks: count every selection in the current 60-second round.
--- Result is one of Red, Green, Violet only; no mixed colors are returned.
+-- Shared Color King demo picks: count distinct accounts per color in each 10-second round.
+-- The less-selected color wins; an exact Red/Green tie returns a base color plus Violet.
 
 create table if not exists public.ck_color_picks (
   id bigserial primary key,
@@ -61,12 +61,11 @@ begin
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  -- Count every Red/Green selection separately, regardless of stake amount or account.
-  -- Repeated selections by the same account are separate entries.
-  select count(*) into red_count
+  -- Count each account once per color in this round; stake amount is ignored.
+  select count(distinct user_id) into red_count
   from public.ck_color_picks where period = p_period and color = 'Red';
 
-  select count(*) into green_count
+  select count(distinct user_id) into green_count
   from public.ck_color_picks where period = p_period and color = 'Green';
 
   -- Violet-only selections do not count as a Red/Green tie.
