@@ -47,7 +47,7 @@ async function finish(){
   session=JSON.parse(localStorage.getItem('ck-auth-session-v1')||'null');
   if(!session?.access_token) throw Error('Login required to get the shared color result.');
   if(!cfg.url||!cfg.anonKey) throw Error('Shared result configuration is missing.');
-  const resp=await fetch(cfg.url.replace(/\\/$/, '')+'/rest/v1/rpc/ck_get_auto_color_result',{
+  const resp=await fetch(cfg.url.replace(/\/$/, '')+'/rest/v1/rpc/ck_get_auto_color_result',{
    method:'POST',
    headers:{'Content-Type':'application/json','apikey':cfg.anonKey,'Authorization':'Bearer '+session.access_token},
    body:JSON.stringify({p_period:closingPeriod})
