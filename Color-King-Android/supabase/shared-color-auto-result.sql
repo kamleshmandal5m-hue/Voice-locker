@@ -55,6 +55,13 @@ begin
     return null;
   end if;
 
+  -- If nobody selected any color this round, choose randomly between Red and Green.
+  if not exists (
+    select 1 from public.ck_color_picks where period = p_period
+  ) then
+    return case when random() < 0.5 then 'Red' else 'Green' end;
+  end if;
+
   -- Red and Green are the two always-compared choices.
   -- Violet joins the comparison only when at least one user selected Violet
   -- in this period, so an unused Violet cannot win automatically.
