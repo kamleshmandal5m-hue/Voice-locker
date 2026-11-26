@@ -69,10 +69,11 @@ begin
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  select count(distinct user_id) into red_count
+  -- Compare the total virtual stake amounts, including repeat selections.
+  select coalesce(sum(amount), 0) into red_count
   from public.ck_color_picks where period = p_period and color = 'Red';
 
-  select count(distinct user_id) into green_count
+  select coalesce(sum(amount), 0) into green_count
   from public.ck_color_picks where period = p_period and color = 'Green';
 
   -- Violet-only selections do not count as a Red/Green tie.
