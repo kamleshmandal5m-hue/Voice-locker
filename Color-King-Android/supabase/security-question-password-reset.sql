@@ -37,7 +37,7 @@ alter table public.ck_password_reset_attempts enable row level security;
 create or replace function public.ck_set_security_question(p_question text, p_answer text)
 returns boolean language plpgsql security definer
 set search_path = public, extensions, auth
-as $
+as $function$
   if auth.uid() is null or length(trim(coalesce(p_question,''))) < 3
      or length(trim(coalesce(p_answer,''))) < 2 then
     raise exception 'A security question and answer are required';
@@ -50,7 +50,7 @@ as $
     set phone=excluded.phone, question=excluded.question,
         answer_hash=excluded.answer_hash, created_at=now();
   return true;
-end; $$;
+end; $function$;
 
 -- Remove the earlier versions that required users to type the question again.
 drop function if exists public.ck_verify_security_answer(text,text,text);
