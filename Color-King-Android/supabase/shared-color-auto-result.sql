@@ -59,44 +59,35 @@ security definer
 set search_path = public
 as $function$
 declare
-  least_count bigint;
-  least_colors text[];
+  red_count bigint;
+  green_count bigint;
 begin
   if p_period is null then
     return null;
   end if;
 
-  -- No votes: choose randomly between Red and Green.
+  -- Preserve the no-vote behavior: randomly choose Red or Green, never Violet.
   if not exists (select 1 from public.ck_color_picks where period = p_period) then
     return case when random() < 0.5 then 'Red' else 'Green' end;
   end if;
 
-  -- Always compare all three colors. A color with no votes has count zero.
-  with color_counts as (
-    select colors.color, count(distinct picks.user_id) as n
-    from unnest(array['Red','Green','Violet']::text[]) as colors(color)
-    left join public.ck_color_picks as picks
-      on picks.color = colors.color
-     and picks.period = p_period
-    group by colors.color
-  )
-  select min(n) into least_count from color_counts;
+  -- Count unique people, not the number or amount of their selections.
+  select count(distinct user_id) into red_count
+  from public.ck_color_picks
+  where period = p_period and color = 'Red';
 
-  -- Randomly choose among every color tied for the lowest count,
-  -- including colors with zero selections.
-  with color_counts as (
-    select colors.color, count(distinct picks.user_id) as n
-    from unnest(array['Red','Green','Violet']::text[]) as colors(color)
-    left join public.ck_color_picks as picks
-      on picks.color = colors.color
-     and picks.period = p_period
-    group by colors.color
-  )
-  select array_agg(color order by color) into least_colors
-  from color_counts
-  where n = least_count;
+  select count(distinct user_id) into green_count
+  from public.ck_color_picks
+  where period = p_period and color = 'Green';
 
-  return least_colors[1 + floor(random() * cardinality(least_colors))::integer];
+  -- Violet is returned only when Red and Green have equal people counts.
+  if red_count = green_count then
+    return 'Violet';
+  elsif red_count < green_count then
+    return 'Red';
+  else
+    return 'Green';
+  end if;
 end;
 $function$;
 
