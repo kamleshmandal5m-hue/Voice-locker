@@ -55,26 +55,26 @@ begin
     return null;
   end if;
 
-  select min(n) into least_count
-  from (
-    select color, count(*) as n
-    from public.ck_color_picks
-    where period = p_period
-    group by color
-  ) counts;
+  -- Include every available color, even when nobody selected it (count = 0).
+  with color_counts as (
+    select c.color, count(p.id) as n
+    from (values ('Red'), ('Green'), ('Violet')) as c(color)
+    left join public.ck_color_picks p
+      on p.period = p_period and p.color = c.color
+    group by c.color
+  )
+  select min(n) into least_count from color_counts;
 
-  if least_count is null then
-    return null;
-  end if;
-
+  with color_counts as (
+    select c.color, count(p.id) as n
+    from (values ('Red'), ('Green'), ('Violet')) as c(color)
+    left join public.ck_color_picks p
+      on p.period = p_period and p.color = c.color
+    group by c.color
+  )
   select array_agg(color order by color) into least_colors
-  from (
-    select color, count(*) as n
-    from public.ck_color_picks
-    where period = p_period
-    group by color
-    having count(*) = least_count
-  ) tied;
+  from color_counts
+  where n = least_count;
 
   if cardinality(least_colors) = 1 then
     return least_colors[1];
