@@ -60,7 +60,7 @@ async function finish(){
   $('message').textContent='Shared result error: '+(e.message||'Please check Supabase SQL and login.');
   return;
  }
- let r=randResult(closingPeriod);r.color=chosen;r.dots=[chosen];
+ let r=randResult(closingPeriod);r.color=chosen;r.dots=chosen==='Violet'?['Violet',Math.random()<0.5?'Red':'Green']:[chosen];
  records.unshift(r);records=records.slice(0,150);
  if(bets.length){
   for(const vote of bets){let won=vote.pick==='Number '+r.number||vote.pick===r.color,amount=won?vote.stake*2:0;
