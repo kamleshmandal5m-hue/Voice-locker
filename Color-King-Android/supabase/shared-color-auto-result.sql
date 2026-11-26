@@ -84,10 +84,8 @@ begin
     low_color := 'Red';
   end if;
 
-  -- Add Violet only for a very close count: a difference of one person or less.
-  if abs(red_count - green_count) <= 1 then
-    return low_color || '+Violet';
-  end if;
+  -- Violet is added only when Red and Green counts are exactly equal.
+  -- Any unequal count returns only the less-selected color.
   return low_color;
 end;
 $function$;
