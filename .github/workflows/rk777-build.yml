@@ -1,0 +1,32 @@
+name: RK777 Android APK Build
+on:
+  push:
+    paths:
+      - 'RK777/**'
+      - '.github/workflows/rk777-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Build both APKs
+        working-directory: RK777
+        run: gradle assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RK-777-User-APK
+          path: RK777/userapp/build/outputs/apk/debug/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RK-777-Admin-APK
+          path: RK777/adminapp/build/outputs/apk/debug/*.apk
