@@ -1,0 +1,3 @@
+package com.rk777.admin;
+import android.app.Activity;import android.os.Bundle;import android.graphics.Color;import android.view.Gravity;import android.widget.*;
+public class MainActivity extends Activity{public void onCreate(Bundle b){super.onCreate(b);LinearLayout l=new LinearLayout(this);l.setOrientation(1);l.setGravity(Gravity.CENTER);l.setPadding(24,24,24,24);l.setBackgroundColor(0xff101522);TextView t=new TextView(this);t.setText("RK 777 ADMIN\n\nAdmin panel placeholder\nSurvey submissions are not connected yet.");t.setTextColor(Color.WHITE);t.setTextSize(22);t.setGravity(Gravity.CENTER);l.addView(t);setContentView(l);}}
