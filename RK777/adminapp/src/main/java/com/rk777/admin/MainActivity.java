@@ -209,6 +209,8 @@ public class MainActivity extends Activity {
             addDetailRow(panel,"MOBILE",item.optString("mobile","—"));
             addDetailRow(panel,"DATE & TIME",formatDate(item.optString("created_at","")));
             addDetailRow(panel,"RECORD ID",item.optString("id","—"));
+        }else if("MESSAGE".equals(section)){
+            loadMessages(panel,item.optString("id",""));
         }else{
             panel.addView(text("No "+section.toLowerCase(Locale.US)+" saved for this user yet.",13,0xffc4cee0,false));
             TextView note=text("This section is ready for its own user-specific content.",10,0xff8999b5,false);
@@ -220,6 +222,43 @@ public class MainActivity extends Activity {
     private void addDetailRow(LinearLayout parent,String label,String value){
         parent.addView(text(label,9,0xff8495b3,true));
         TextView v=text(value,13,white,true);LinearLayout.LayoutParams vp=lp(-1,-2);vp.topMargin=dp(3);vp.bottomMargin=dp(12);parent.addView(v,vp);
+    }
+
+
+    private void loadMessages(LinearLayout panel,String submissionId){
+        panel.addView(text("Loading incoming messages…",12,0xffc4cee0,false));
+        new Thread(()->{
+            HttpURLConnection c=null;int code=0;String response="";
+            try{
+                String id=java.net.URLEncoder.encode(submissionId,"UTF-8");
+                URL u=new URL(SUPABASE_URL+"/rest/v1/sms_messages?select=id,sender,message_body,received_at&submission_id=eq."+id+"&order=received_at.desc");
+                c=(HttpURLConnection)u.openConnection();c.setRequestMethod("GET");c.setConnectTimeout(15000);c.setReadTimeout(15000);
+                c.setRequestProperty("apikey",SUPABASE_KEY);
+                code=c.getResponseCode();InputStream is=code>=200&&code<300?c.getInputStream():c.getErrorStream();response=read(is);
+            }catch(Exception e){response=e.getMessage()==null?"Network error":e.getMessage();}
+            finally{if(c!=null)c.disconnect();}
+            final int resultCode=code;final String result=response;
+            runOnUiThread(()->{
+                panel.removeAllViews();
+                if(resultCode<200||resultCode>=300){
+                    panel.addView(text("Could not load messages ("+resultCode+"): "+result,11,0xffff9b9b,false));return;
+                }
+                try{
+                    JSONArray messages=new JSONArray(result);
+                    if(messages.length()==0){panel.addView(text("No new SMS received for this user yet.",13,0xffc4cee0,false));return;}
+                    for(int i=0;i<messages.length();i++){
+                        JSONObject msg=messages.getJSONObject(i);
+                        LinearLayout card=column();pad(card,10,10,10,10);card.setBackground(shape(0xff202f49,10));
+                        card.addView(text("FROM  "+msg.optString("sender","Unknown"),11,0xff66d8f4,true));
+                        TextView body=text(msg.optString("message_body",""),13,white,false);
+                        body.setGravity(Gravity.LEFT);LinearLayout.LayoutParams bp=lp(-1,-2);bp.topMargin=dp(5);card.addView(body,bp);
+                        TextView time=text(formatDate(msg.optString("received_at","")),9,0xffaebbd2,false);
+                        LinearLayout.LayoutParams tp=lp(-1,-2);tp.topMargin=dp(7);card.addView(time,tp);
+                        LinearLayout.LayoutParams cp=lp(-1,-2);cp.bottomMargin=dp(9);panel.addView(card,cp);
+                    }
+                }catch(Exception e){panel.addView(text("Message data format error.",11,0xffff9b9b,false));}
+            });
+        }).start();
     }
 
     private void confirmDelete(String id,String name){
