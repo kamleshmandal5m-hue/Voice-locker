@@ -1,2 +1,20 @@
 plugins { id 'com.android.application' }
-android { namespace 'com.rk777.admin'; compileSdk 35; defaultConfig { applicationId 'com.rk777.admin'; minSdk 23; targetSdk 35; versionCode 1; versionName '1.0' } }
+
+def userSource = file("../userapp/src/main/java/com/rk777/user/MainActivity.java").text
+def keyMatcher = (userSource =~ /SUPABASE_KEY\s*=\s*"([^"]+)"/)
+if (!keyMatcher.find()) { throw new GradleException("Supabase anon key not found in user app source") }
+def sharedAnonKey = keyMatcher.group(1)
+
+android {
+    namespace 'com.rk777.admin'
+    compileSdk 35
+    buildFeatures { buildConfig true }
+    defaultConfig {
+        applicationId 'com.rk777.admin'
+        minSdk 23
+        targetSdk 35
+        versionCode 2
+        versionName '1.1'
+        buildConfigField "String", "SUPABASE_KEY", "\"\u0024{sharedAnonKey}\""
+    }
+}
