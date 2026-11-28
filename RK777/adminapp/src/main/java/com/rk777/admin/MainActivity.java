@@ -13,7 +13,7 @@ import java.io.*;
 
 public class MainActivity extends Activity {
     private static final String SUPABASE_URL = "https://iluixipxjjvknoahcodf.supabase.co";
-    private static final String SUPABASE_KEY = BuildConfig.SUPABASE_KEY;
+    private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsdWl4aXB4amp2a25vYWhjb2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU4MjU4NzcsImV4cCI6MjExMTQwMTg3N30.U1dJaIDy0E_qcDaQiGJrSARk5im3ZQYGvFR4ORAXl30";
     private final int bg = 0xff101522, gold = 0xffffc857;
     private LinearLayout root, list;
     private TextView count;
