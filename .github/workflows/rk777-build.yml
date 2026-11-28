@@ -1,14 +1,17 @@
-name: RK777 Android APK Build
+name: RK777 Admin APK Build
 on:
   push:
     paths:
-      - 'RK777/**'
+      - 'RK777/adminapp/**'
+      - 'RK777/build.gradle'
+      - 'RK777/settings.gradle'
+      - 'RK777/gradle.properties'
       - '.github/workflows/rk777-build.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  build:
+  build-admin:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,13 +22,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Build both APKs
+      - name: Build Admin APK only
         working-directory: RK777
-        run: gradle assembleDebug
-      - uses: actions/upload-artifact@v4
-        with:
-          name: RK-777-User-APK
-          path: RK777/userapp/build/outputs/apk/debug/*.apk
+        run: gradle :adminapp:assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: RK-777-Admin-APK
