@@ -184,19 +184,16 @@ public class MainActivity extends Activity {
         String[] labels={"DATA","MESSAGE","APPLICATION","STORAGE"};
         String[] subtitles={"User details","Messages","Applications","Files & storage"};
         int[] colors={0xff536dfe,0xff00a98f,0xffff9b45,0xffdf5b91};
-        LinearLayout tiles=column();LinearLayout.LayoutParams tlp=lp(-1,-2);tlp.topMargin=dp(9);page.addView(tiles,tlp);
-        for(int i=0;i<4;i+=2){
-            LinearLayout r=row();LinearLayout.LayoutParams rlp=lp(-1,-2);if(i>0)rlp.topMargin=dp(9);tiles.addView(r,rlp);
-            for(int j=i;j<i+2;j++){
-                final String section=labels[j];
-                LinearLayout tile=column();pad(tile,13,15,10,14);tile.setBackground(shape(0xff15223a,14));
-                TextView symbol=text(new String[]{"▦","●","▤","▣"}[j],20,white,true);
-                symbol.setGravity(Gravity.CENTER);symbol.setBackground(shape(colors[j],10));tile.addView(symbol,lp(38,36));
-                TextView name=text(labels[j],12,white,true);LinearLayout.LayoutParams nlp=lp(-1,-2);nlp.topMargin=dp(10);tile.addView(name,nlp);
-                TextView desc=text(subtitles[j],9,0xff9ba9c0,false);LinearLayout.LayoutParams slp=lp(-1,-2);slp.topMargin=dp(3);tile.addView(desc,slp);
-                tile.setOnClickListener(v->showUserSection(item,serial,section));
-                LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(112),1);if(j%2==1)cp.leftMargin=dp(9);r.addView(tile,cp);
-            }
+        LinearLayout tiles=row();tiles.setGravity(Gravity.CENTER_VERTICAL);LinearLayout.LayoutParams tlp=lp(-1,76);tlp.topMargin=dp(10);page.addView(tiles,tlp);
+        for(int j=0;j<4;j++){
+            final String section=labels[j];
+            LinearLayout tile=column();tile.setGravity(Gravity.CENTER);pad(tile,2,7,2,7);tile.setBackground(shape(0xff15223a,11));
+            TextView symbol=text(new String[]{"▦","●","▤","▣"}[j],15,white,true);
+            symbol.setGravity(Gravity.CENTER);symbol.setBackground(shape(colors[j],8));tile.addView(symbol,lp(25,25));
+            TextView name=text(labels[j],8,white,true);name.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams nlp=lp(-1,-2);nlp.topMargin=dp(6);tile.addView(name,nlp);
+            tile.setOnClickListener(v->showUserSection(item,serial,section));
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(76),1);if(j>0)cp.leftMargin=dp(5);tiles.addView(tile,cp);
         }
         setContentView(page);
     }
