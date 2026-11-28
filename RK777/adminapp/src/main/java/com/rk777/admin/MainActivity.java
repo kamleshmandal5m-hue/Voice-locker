@@ -52,49 +52,39 @@ public class MainActivity extends Activity {
     private void pad(View v,int l,int t,int r,int b){v.setPadding(dp(l),dp(t),dp(r),dp(b));}
 
     private void showDashboard(){
-        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(bg);
-        LinearLayout page=column();pad(page,16,16,16,28);scroll.addView(page);setContentView(scroll);
+        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setBackgroundColor(0xff080f20);
+        LinearLayout page=column();pad(page,12,12,12,22);scroll.addView(page);setContentView(scroll);
 
-        LinearLayout hero=column();pad(hero,20,20,20,22);hero.setBackground(gradient(0xff17254b,0xff304f91,25));
-        LinearLayout brand=row();
-        TextView mark=text("RK",14,white,true);mark.setGravity(Gravity.CENTER);mark.setBackground(shape(0x33ffffff,12));pad(mark,11,8,11,8);brand.addView(mark,lp(42,38));
-        LinearLayout brandText=column();LinearLayout.LayoutParams btp=lp(-2,-2);btp.leftMargin=dp(10);brand.addView(brandText,btp);
-        brandText.addView(text("RK 777",12,0xffd9e6ff,true));
-        brandText.addView(text("ADMIN CONTROL PANEL",9,0xffb7c9eb,true));
-        View spacer=new View(this);brand.addView(spacer,new LinearLayout.LayoutParams(0,1,1));
-        TextView live=text("●  LIVE",10,0xffa8f2d2,true);live.setBackground(shape(0x223be0a7,30));pad(live,10,7,10,7);brand.addView(live);
-        hero.addView(brand);
-        TextView title=text("Dashboard",27,white,true);LinearLayout.LayoutParams tlp=lp(-2,-2);tlp.topMargin=dp(24);hero.addView(title,tlp);
-        TextView sub=text("Manage and review user submissions",12,0xffd2def5,false);LinearLayout.LayoutParams subp=lp(-2,-2);subp.topMargin=dp(5);hero.addView(sub,subp);
+        LinearLayout hero=column();pad(hero,16,15,16,16);hero.setBackground(gradient(0xff5146d8,0xff087fbd,18));
+        TextView brand=text("RK 777  •  CONTROL CENTER",10,0xffdceaff,true);hero.addView(brand);
+        TextView title=text("Admin Dashboard",23,white,true);LinearLayout.LayoutParams titleLp=lp(-2,-2);titleLp.topMargin=dp(7);hero.addView(title,titleLp);
+        TextView sub=text("Live survey submissions overview",11,0xffd9eaff,false);LinearLayout.LayoutParams subLp=lp(-2,-2);subLp.topMargin=dp(3);hero.addView(sub,subLp);
         page.addView(hero,lp(-1,-2));
 
-        LinearLayout summary=row();LinearLayout.LayoutParams sumLp=lp(-1,-2);sumLp.topMargin=dp(14);page.addView(summary,sumLp);
-        LinearLayout total=column();pad(total,16,15,14,15);total.setBackground(shape(white,20));
-        total.addView(text("TOTAL SUBMISSIONS",9,muted,true));
-        totalText=text("—",32,0xff263e78,true);LinearLayout.LayoutParams nlp=lp(-2,-2);nlp.topMargin=dp(5);total.addView(totalText,nlp);
-        total.addView(text("All registered entries",10,muted,false));
-        summary.addView(total,new LinearLayout.LayoutParams(0,dp(112),1));
-        LinearLayout sync=column();pad(sync,14,15,12,15);sync.setBackground(gradient(0xffe8f5ff,0xffe9f8f2,20));
-        sync.addView(text("DATABASE",9,0xff60758e,true));
-        TextView syncIcon=text("↻",27,0xff168b8b,true);LinearLayout.LayoutParams ilp=lp(-2,-2);ilp.topMargin=dp(2);sync.addView(syncIcon,ilp);
-        sync.addView(text("Cloud sync",11,0xff58758a,true));
-        LinearLayout.LayoutParams syncLp=new LinearLayout.LayoutParams(0,dp(112),1);syncLp.leftMargin=dp(10);summary.addView(sync,syncLp);
+        LinearLayout summary=row();LinearLayout.LayoutParams sumLp=lp(-1,-2);sumLp.topMargin=dp(10);page.addView(summary,sumLp);
+        LinearLayout total=column();pad(total,13,10,12,10);total.setBackground(shape(0xff15223a,16));
+        total.addView(text("TOTAL ENTRIES",9,0xffaebbd2,true));
+        totalText=text("—",27,0xff42e0c1,true);LinearLayout.LayoutParams numLp=lp(-2,-2);numLp.topMargin=dp(2);total.addView(totalText,numLp);
+        total.addView(text("All submissions",9,0xffaebbd2,false));
+        summary.addView(total,new LinearLayout.LayoutParams(0,dp(83),1));
+        LinearLayout sync=column();pad(sync,13,10,12,10);sync.setBackground(shape(0xff15223a,16));
+        sync.addView(text("STATUS",9,0xffaebbd2,true));
+        statusText=text("●  CONNECTING",15,0xffffc45e,true);LinearLayout.LayoutParams statusLp=lp(-1,-2);statusLp.topMargin=dp(9);sync.addView(statusText,statusLp);
+        sync.addView(text("Tap refresh to sync",9,0xffaebbd2,false));
+        LinearLayout.LayoutParams syncLp=new LinearLayout.LayoutParams(0,dp(83),1);syncLp.leftMargin=dp(9);summary.addView(sync,syncLp);
 
-        LinearLayout section=row();LinearLayout.LayoutParams sectionLp=lp(-1,-2);sectionLp.topMargin=dp(23);page.addView(section,sectionLp);
-        LinearLayout heading=column();section.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
-        heading.addView(text("User entries",19,ink,true));
-        heading.addView(text("Latest submissions from your app",10,muted,false));
-        refreshButton=new Button(this);refreshButton.setText("↻  Refresh");refreshButton.setTextSize(12);refreshButton.setTextColor(white);refreshButton.setAllCaps(false);
-        refreshButton.setBackground(gradient(0xff536dfe,0xff3854c8,14));refreshButton.setPadding(dp(12),0,dp(12),0);
-        section.addView(refreshButton,lp(104,42));refreshButton.setOnClickListener(v->loadSubmissions());
+        LinearLayout section=row();LinearLayout.LayoutParams sectionLp=lp(-1,-2);sectionLp.topMargin=dp(16);page.addView(section,sectionLp);
+        TextView heading=text("Recent submissions",17,white,true);section.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
+        refreshButton=new Button(this);refreshButton.setText("↻ Refresh");refreshButton.setTextSize(11);refreshButton.setTextColor(white);refreshButton.setAllCaps(false);
+        refreshButton.setBackground(gradient(0xffff9a25,0xffff5365,12));refreshButton.setPadding(dp(10),0,dp(10),0);
+        section.addView(refreshButton,lp(94,36));refreshButton.setOnClickListener(v->loadSubmissions());
 
-        LinearLayout statusRow=row();LinearLayout.LayoutParams srp=lp(-1,-2);srp.topMargin=dp(14);page.addView(statusRow,srp);
-        statusText=text("Connecting to database…",11,0xff64748b,false);statusRow.addView(statusText,new LinearLayout.LayoutParams(0,-2,1));
-        updatedText=text("Newest first",10,muted,false);updatedText.setGravity(Gravity.RIGHT);statusRow.addView(updatedText);
-        list=column();LinearLayout.LayoutParams listLp=lp(-1,-2);listLp.topMargin=dp(9);page.addView(list,listLp);
+        LinearLayout statusRow=row();LinearLayout.LayoutParams srp=lp(-1,-2);srp.topMargin=dp(7);page.addView(statusRow,srp);
+        updatedText=text("Newest entries appear first  •  #1 = oldest",9,0xff9ba9c0,false);statusRow.addView(updatedText);
+        list=column();LinearLayout.LayoutParams listLp=lp(-1,-2);listLp.topMargin=dp(8);page.addView(list,listLp);
 
-        TextView footer=text("RK 777  •  SECURE ADMIN VIEW",9,0xff9aa6b8,true);footer.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams flp=lp(-1,-2);flp.topMargin=dp(25);page.addView(footer,flp);
+        TextView footer=text("RK 777  •  ADMIN PANEL",9,0xff71809b,true);footer.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams flp=lp(-1,-2);flp.topMargin=dp(16);page.addView(footer,flp);
     }
 
     private void loadSubmissions(){
@@ -121,39 +111,43 @@ public class MainActivity extends Activity {
 
     private void showRows(JSONArray rows){
         int total=rows.length();totalText.setText(String.valueOf(total));list.removeAllViews();
-        statusText.setText("●  Connected  •  Data synced");statusText.setTextColor(0xff159b78);
-        updatedText.setText(" #1 = oldest  •  "+total+" total ");
+        statusText.setText("●  CONNECTED");statusText.setTextColor(0xff43e2bd);
+        updatedText.setText("Newest entries appear first  •  #1 = oldest  •  "+total+" total");
         if(total==0){
-            LinearLayout empty=column();empty.setGravity(Gravity.CENTER);pad(empty,18,30,18,30);empty.setBackground(shape(white,20));
-            TextView icon=text("✦",32,0xff7185e8,true);icon.setGravity(Gravity.CENTER);empty.addView(icon);
-            TextView msg=text("No submissions yet",17,ink,true);msg.setGravity(Gravity.CENTER);empty.addView(msg);
-            TextView hint=text("New user entries will appear here automatically.",11,muted,false);hint.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams hp=lp(-1,-2);hp.topMargin=dp(7);empty.addView(hint,hp);list.addView(empty,lp(-1,-2));return;
+            LinearLayout empty=column();empty.setGravity(Gravity.CENTER);pad(empty,16,22,16,22);empty.setBackground(shape(0xff15223a,16));
+            TextView msg=text("No submissions yet",14,white,true);msg.setGravity(Gravity.CENTER);empty.addView(msg);
+            TextView hint=text("New user entries will appear here",10,0xff9ba9c0,false);hint.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams hp=lp(-1,-2);hp.topMargin=dp(5);empty.addView(hint,hp);list.addView(empty,lp(-1,-2));return;
         }
         for(int i=0;i<total;i++){
             JSONObject item=rows.optJSONObject(i);if(item==null)continue;
             int serial=total-i;int accent=accents[i%accents.length];
-            LinearLayout card=row();pad(card,0,0,13,0);card.setBackground(shape(white,18));
-            LinearLayout stripe=new LinearLayout(this);stripe.setBackground(shape(accent,8));
-            LinearLayout.LayoutParams stripeLp=lp(5,-1);stripeLp.topMargin=dp(13);stripeLp.bottomMargin=dp(13);card.addView(stripe,stripeLp);
-            LinearLayout body=column();pad(body,13,13,12,13);card.addView(body,new LinearLayout.LayoutParams(0,-2,1));
+            LinearLayout card=column();pad(card,12,10,12,10);card.setBackground(shape(0xff15223a,16));
             LinearLayout top=row();
-            TextView name=text(item.optString("full_name","No name"),16,ink,true);name.setMaxLines(2);
-            top.addView(name,new LinearLayout.LayoutParams(0,-2,1));
-            TextView number=text("#"+serial,11,accent,true);number.setGravity(Gravity.CENTER);pad(number,11,6,11,6);number.setBackground(shape(0xffedf0ff,30));top.addView(number);
-            body.addView(top);
-            TextView mobile=text("☎   "+item.optString("mobile","—"),13,0xff267b9f,true);
-            LinearLayout.LayoutParams mlp=lp(-1,-2);mlp.topMargin=dp(9);body.addView(mobile,mlp);
-            TextView date=text("◷   "+formatDate(item.optString("created_at","")),10,muted,false);
-            LinearLayout.LayoutParams dlp=lp(-1,-2);dlp.topMargin=dp(5);body.addView(date,dlp);
-            LinearLayout footer=row();footer.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
-            Button deleteButton=new Button(this);deleteButton.setText("Delete entry");deleteButton.setTextSize(11);deleteButton.setTextColor(0xffc43d55);
-            deleteButton.setAllCaps(false);deleteButton.setMinHeight(0);deleteButton.setMinimumHeight(0);deleteButton.setPadding(dp(12),0,dp(12),0);
-            deleteButton.setBackground(shape(0xffffedf0,10));
-            LinearLayout.LayoutParams deleteLp=lp(112,36);deleteLp.topMargin=dp(11);footer.addView(deleteButton,deleteLp);
+            TextView nameLabel=text("NAME",8,0xff8495b3,true);top.addView(nameLabel,new LinearLayout.LayoutParams(0,-2,1));
+            TextView number=text("#"+serial,10,white,true);number.setGravity(Gravity.CENTER);pad(number,10,5,10,5);number.setBackground(shape(accent,20));top.addView(number);
+            card.addView(top);
+            TextView name=text(item.optString("full_name","No name"),14,white,true);name.setMaxLines(2);
+            LinearLayout.LayoutParams nameLp=lp(-1,-2);nameLp.topMargin=dp(2);card.addView(name,nameLp);
+
+            LinearLayout fields=row();LinearLayout.LayoutParams fieldsLp=lp(-1,-2);fieldsLp.topMargin=dp(8);card.addView(fields,fieldsLp);
+            LinearLayout mobileBox=column();pad(mobileBox,9,7,7,7);mobileBox.setBackground(shape(0xff1c2d49,10));
+            mobileBox.addView(text("MOBILE",8,0xff8fa2c0,true));
+            TextView mobile=text(item.optString("mobile","—"),12,0xff66d8f4,true);mobile.setMaxLines(1);mobile.setSingleLine(true);mobileBox.addView(mobile);
+            fields.addView(mobileBox,new LinearLayout.LayoutParams(0,-2,1));
+            LinearLayout dateBox=column();pad(dateBox,9,7,7,7);dateBox.setBackground(shape(0xff1c2d49,10));
+            dateBox.addView(text("DATE & TIME",8,0xff8fa2c0,true));
+            TextView date=text(formatDate(item.optString("created_at","")),10,0xffd1d9e8,false);date.setMaxLines(1);date.setSingleLine(true);dateBox.addView(date);
+            LinearLayout.LayoutParams dateLp=new LinearLayout.LayoutParams(0,-2,1);dateLp.leftMargin=dp(7);fields.addView(dateBox,dateLp);
+
+            LinearLayout actions=row();actions.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+            Button deleteButton=new Button(this);deleteButton.setText("DELETE");deleteButton.setTextSize(9);deleteButton.setTextColor(0xffff8795);
+            deleteButton.setAllCaps(false);deleteButton.setMinHeight(0);deleteButton.setMinimumHeight(0);deleteButton.setPadding(dp(9),0,dp(9),0);
+            deleteButton.setBackground(shape(0xff3a2638,9));
+            LinearLayout.LayoutParams deleteLp=lp(78,30);deleteLp.topMargin=dp(7);actions.addView(deleteButton,deleteLp);
             String recordId=item.optString("id","");String recordName=item.optString("full_name","this entry");
-            deleteButton.setOnClickListener(v->confirmDelete(recordId,recordName));body.addView(footer);
-            LinearLayout.LayoutParams clp=lp(-1,-2);clp.topMargin=dp(9);list.addView(card,clp);
+            deleteButton.setOnClickListener(v->confirmDelete(recordId,recordName));card.addView(actions);
+            LinearLayout.LayoutParams clp=lp(-1,-2);clp.topMargin=dp(8);list.addView(card,clp);
         }
     }
 
