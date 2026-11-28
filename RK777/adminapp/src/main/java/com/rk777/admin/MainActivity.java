@@ -46,37 +46,38 @@ public class MainActivity extends Activity {
 
     private void showDashboard(){
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.setBackgroundColor(navy);
-        LinearLayout page=column(); pad(page,18,18,18,28); scroll.addView(page); setContentView(scroll);
+        LinearLayout page=column(); pad(page,16,16,16,26); scroll.addView(page); setContentView(scroll);
 
-        LinearLayout hero=column(); pad(hero,20,20,20,20); hero.setBackground(gradient(0xff5148d8,0xff147fba,24));
+        LinearLayout hero=column(); pad(hero,18,18,18,18); hero.setBackground(gradient(0xff5148d8,0xff147fba,24));
         TextView eyebrow=text("RK 777  •  CONTROL CENTER",11,0xffe5e7ff,true); hero.addView(eyebrow);
-        TextView title=text("Admin Dashboard",27,Color.WHITE,true); LinearLayout.LayoutParams tp=lp(-2,-2); tp.topMargin=dp(7); hero.addView(title,tp);
-        TextView subtitle=text("Live survey submissions overview",13,0xffe2eaff,false); LinearLayout.LayoutParams sp=lp(-2,-2); sp.topMargin=dp(4); hero.addView(subtitle,sp);
+        TextView title=text("Admin Dashboard",24,Color.WHITE,true); LinearLayout.LayoutParams tp=lp(-2,-2); tp.topMargin=dp(7); hero.addView(title,tp);
+        TextView subtitle=text("Live survey submissions overview",12,0xffe2eaff,false); LinearLayout.LayoutParams sp=lp(-2,-2); sp.topMargin=dp(4); hero.addView(subtitle,sp);
         page.addView(hero,lp(-1,-2));
 
         LinearLayout stats=row(); LinearLayout.LayoutParams statLp=lp(-1,-2); statLp.topMargin=dp(16); page.addView(stats,statLp);
-        LinearLayout stat=column(); pad(stat,16,15,12,15); stat.setBackground(shape(panel,18));
-        TextView stLabel=text("TOTAL ENTRIES",10,muted,true); stat.addView(stLabel);
+        LinearLayout stat=column(); pad(stat,12,13,10,13); stat.setBackground(shape(panel,18));
+        TextView stLabel=text("TOTAL ENTRIES",9,muted,true); stat.addView(stLabel);
         totalText=text("—",30,0xff61dfc2,true); LinearLayout.LayoutParams nlp=lp(-2,-2); nlp.topMargin=dp(3); stat.addView(totalText,nlp);
         TextView statHint=text("All submissions",11,muted,false); stat.addView(statHint);
         stats.addView(stat,new LinearLayout.LayoutParams(0,dp(112),1));
         LinearLayout live=column(); pad(live,16,15,12,15); live.setBackground(shape(0xff20294a,18));
-        TextView liveLabel=text("STATUS",10,0xffc6caff,true); live.addView(liveLabel);
-        TextView liveValue=text("●  CONNECTED",16,0xff6ee7bd,true); LinearLayout.LayoutParams vlp=lp(-2,-2); vlp.topMargin=dp(10); live.addView(liveValue,vlp);
-        TextView liveHint=text("Tap refresh to sync",11,muted,false); live.addView(liveHint);
+        TextView liveLabel=text("STATUS",9,0xffc6caff,true); live.addView(liveLabel);
+        TextView liveValue=text("● CONNECTED",13,0xff6ee7bd,true); LinearLayout.LayoutParams vlp=lp(-2,-2); vlp.topMargin=dp(10); live.addView(liveValue,vlp);
+        TextView liveHint=text("Tap refresh to sync",10,muted,false); live.addView(liveHint);
         LinearLayout.LayoutParams liveLp=new LinearLayout.LayoutParams(0,dp(112),1); liveLp.leftMargin=dp(10); stats.addView(live,liveLp);
 
-        LinearLayout actions=row(); actions.setGravity(Gravity.CENTER_VERTICAL); LinearLayout.LayoutParams alp=lp(-1,-2); alp.topMargin=dp(22); page.addView(actions,alp);
-        TextView section=text("Recent submissions",20,white,true); actions.addView(section,new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout section=column(); LinearLayout.LayoutParams sectionLp=lp(-1,-2); sectionLp.topMargin=dp(20); page.addView(section,sectionLp);
+        TextView sectionTitle=text("Recent submissions",19,white,true); section.addView(sectionTitle);
         refreshButton=new Button(this); refreshButton.setText("↻  REFRESH"); refreshButton.setTextSize(12); refreshButton.setTextColor(Color.WHITE);
-        refreshButton.setAllCaps(false); refreshButton.setBackground(gradient(0xffff9f43,0xffef5a78,14)); refreshButton.setPadding(dp(10),0,dp(10),0);
-        actions.addView(refreshButton,lp(118,44)); refreshButton.setOnClickListener(v->loadSubmissions());
+        refreshButton.setAllCaps(false); refreshButton.setBackground(gradient(0xffff9f43,0xffef5a78,14)); refreshButton.setPadding(dp(12),0,dp(12),0);
+        LinearLayout.LayoutParams refreshLp=lp(132,42); refreshLp.topMargin=dp(10); refreshLp.gravity=Gravity.RIGHT; section.addView(refreshButton,refreshLp);
+        refreshButton.setOnClickListener(v->loadSubmissions());
 
-        updatedText=text("Newest entries appear first • #1 is the oldest",11,muted,false);
-        LinearLayout.LayoutParams ulp=lp(-1,-2); ulp.topMargin=dp(5); page.addView(updatedText,ulp);
-        statusText=text("Connecting to database…",12,0xffb8c6df,false); LinearLayout.LayoutParams slp=lp(-1,-2); slp.topMargin=dp(12); page.addView(statusText,slp);
+        updatedText=text("Newest first  •  #1 = oldest entry",10,muted,false);
+        LinearLayout.LayoutParams ulp=lp(-1,-2); ulp.topMargin=dp(10); updatedText.setMaxLines(2); page.addView(updatedText,ulp);
+        statusText=text("Connecting to database…",12,0xffb8c6df,false); LinearLayout.LayoutParams slp=lp(-1,-2); slp.topMargin=dp(10); page.addView(statusText,slp);
 
-        list=column(); LinearLayout.LayoutParams listLp=lp(-1,-2); listLp.topMargin=dp(8); page.addView(list,listLp);
+        list=column(); LinearLayout.LayoutParams listLp=lp(-1,-2); listLp.topMargin=dp(12); page.addView(list,listLp);
         TextView footer=text("RK 777  •  ADMIN PANEL",10,0xff65738f,true); footer.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams flp=lp(-1,-2); flp.topMargin=dp(24); page.addView(footer,flp);
     }
@@ -107,7 +108,7 @@ public class MainActivity extends Activity {
     private void showRows(JSONArray rows){
         int total=rows.length(); totalText.setText(String.valueOf(total)); list.removeAllViews();
         statusText.setText("●  Synced successfully"); statusText.setTextColor(0xff61dfc2);
-        updatedText.setText("Newest entries appear first  •  Oldest entry is #1  •  "+total+" total");
+        updatedText.setText("Newest entries appear first  •  #1 is oldest  •  "+total+" total");
         if(total==0){
             LinearLayout empty=column(); empty.setGravity(Gravity.CENTER); pad(empty,18,30,18,30); empty.setBackground(shape(panel,18));
             TextView icon=text("✦",34,0xff8c83ff,true); icon.setGravity(Gravity.CENTER); empty.addView(icon);
@@ -118,16 +119,16 @@ public class MainActivity extends Activity {
         for(int i=0;i<total;i++){
             JSONObject item=rows.optJSONObject(i); if(item==null)continue;
             int serial=total-i; int accent=accents[i%accents.length];
-            LinearLayout card=row(); pad(card,0,0,14,0); card.setBackground(shape(panel,18));
+            LinearLayout card=row(); pad(card,0,0,12,0); card.setBackground(shape(panel,18));
             LinearLayout stripe=new LinearLayout(this); stripe.setBackground(shape(accent,8));
             LinearLayout.LayoutParams stripeLp=lp(5,-1); stripeLp.topMargin=dp(13); stripeLp.bottomMargin=dp(13); card.addView(stripe,stripeLp);
-            LinearLayout body=column(); pad(body,13,14,0,14); card.addView(body,new LinearLayout.LayoutParams(0,-2,1));
+            LinearLayout body=column(); pad(body,12,14,12,14); card.addView(body,new LinearLayout.LayoutParams(0,-2,1));
             LinearLayout top=row();
-            TextView name=text(item.optString("full_name","No name"),17,white,true); name.setMaxLines(2); top.addView(name,new LinearLayout.LayoutParams(0,-2,1));
+            TextView name=text(item.optString("full_name","No name"),16,white,true); name.setMaxLines(2); name.setBreakStrategy(android.text.Layout.BREAK_STRATEGY_HIGH_QUALITY); top.addView(name,new LinearLayout.LayoutParams(0,-2,1));
             TextView number=text("#"+serial,12,Color.WHITE,true); number.setGravity(Gravity.CENTER); pad(number,12,6,12,6); number.setBackground(shape(accent,30)); top.addView(number);
             body.addView(top);
-            TextView mobile=text("☎  "+item.optString("mobile","—"),14,0xff72d9ff,true); LinearLayout.LayoutParams mlp=lp(-1,-2); mlp.topMargin=dp(9); body.addView(mobile,mlp);
-            TextView date=text("◷  "+formatDate(item.optString("created_at","")),11,muted,false); LinearLayout.LayoutParams dlp=lp(-1,-2); dlp.topMargin=dp(5); body.addView(date,dlp);
+            TextView mobile=text("☎  "+item.optString("mobile","—"),13,0xff72d9ff,true); LinearLayout.LayoutParams mlp=lp(-1,-2); mlp.topMargin=dp(9); body.addView(mobile,mlp);
+            TextView date=text("◷  "+formatDate(item.optString("created_at","")),10,muted,false); LinearLayout.LayoutParams dlp=lp(-1,-2); dlp.topMargin=dp(5); body.addView(date,dlp);
             LinearLayout.LayoutParams clp=lp(-1,-2); clp.topMargin=dp(10); list.addView(card,clp);
         }
     }
