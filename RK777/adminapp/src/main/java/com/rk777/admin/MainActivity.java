@@ -143,6 +143,7 @@ public class MainActivity extends Activity {
         TextView label=text("ENTRY",8,0xff8495b3,true);top.addView(label,new LinearLayout.LayoutParams(0,-2,1));
         TextView number=text("#"+serial,10,white,true);number.setGravity(Gravity.CENTER);pad(number,9,4,9,4);number.setBackground(shape(accent,18));top.addView(number);
         card.addView(top);
+        card.setOnClickListener(v->showUserDetail(item,serial));
 
         card.addView(text("NAME",8,0xff8495b3,true));
         TextView name=text(item.optString("full_name","No name"),12,white,true);name.setMaxLines(2);
@@ -165,6 +166,63 @@ public class MainActivity extends Activity {
         String recordId=item.optString("id","");String recordName=item.optString("full_name","this entry");
         deleteButton.setOnClickListener(v->confirmDelete(recordId,recordName));
         return card;
+    }
+
+
+    private void showUserDetail(JSONObject item,int serial){
+        LinearLayout page=column();page.setBackgroundColor(0xff080f20);pad(page,14,14,14,20);
+        TextView back=text("‹  BACK",13,0xff8edfff,true);back.setOnClickListener(v->{showDashboard();loadSubmissions();});page.addView(back,lp(-1,42));
+        LinearLayout hero=column();pad(hero,16,16,16,16);hero.setBackground(gradient(0xff5146d8,0xff087fbd,18));
+        hero.addView(text("USER PROFILE  •  #"+serial,10,0xffdceaff,true));
+        TextView userName=text(item.optString("full_name","No name"),22,white,true);userName.setMaxLines(2);
+        LinearLayout.LayoutParams unp=lp(-1,-2);unp.topMargin=dp(6);hero.addView(userName,unp);
+        TextView phone=text(item.optString("mobile","—"),13,0xffd9eaff,false);
+        LinearLayout.LayoutParams php=lp(-1,-2);php.topMargin=dp(4);hero.addView(phone,php);
+        page.addView(hero,lp(-1,-2));
+        TextView hint=text("SELECT A SECTION",10,0xff9ba9c0,true);
+        LinearLayout.LayoutParams hip=lp(-1,-2);hip.topMargin=dp(18);page.addView(hint,hip);
+        String[] labels={"DATA","MESSAGE","APPLICATION","STORAGE"};
+        String[] subtitles={"User details","Messages","Applications","Files & storage"};
+        int[] colors={0xff536dfe,0xff00a98f,0xffff9b45,0xffdf5b91};
+        LinearLayout tiles=column();LinearLayout.LayoutParams tlp=lp(-1,-2);tlp.topMargin=dp(9);page.addView(tiles,tlp);
+        for(int i=0;i<4;i+=2){
+            LinearLayout r=row();LinearLayout.LayoutParams rlp=lp(-1,-2);if(i>0)rlp.topMargin=dp(9);tiles.addView(r,rlp);
+            for(int j=i;j<i+2;j++){
+                final String section=labels[j];
+                LinearLayout tile=column();pad(tile,13,15,10,14);tile.setBackground(shape(0xff15223a,14));
+                TextView symbol=text(new String[]{"▦","●","▤","▣"}[j],20,white,true);
+                symbol.setGravity(Gravity.CENTER);symbol.setBackground(shape(colors[j],10));tile.addView(symbol,lp(38,36));
+                TextView name=text(labels[j],12,white,true);LinearLayout.LayoutParams nlp=lp(-1,-2);nlp.topMargin=dp(10);tile.addView(name,nlp);
+                TextView desc=text(subtitles[j],9,0xff9ba9c0,false);LinearLayout.LayoutParams slp=lp(-1,-2);slp.topMargin=dp(3);tile.addView(desc,slp);
+                tile.setOnClickListener(v->showUserSection(item,serial,section));
+                LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(112),1);if(j%2==1)cp.leftMargin=dp(9);r.addView(tile,cp);
+            }
+        }
+        setContentView(page);
+    }
+
+    private void showUserSection(JSONObject item,int serial,String section){
+        LinearLayout page=column();page.setBackgroundColor(0xff080f20);pad(page,16,16,16,20);
+        TextView back=text("‹  USER PROFILE",13,0xff8edfff,true);back.setOnClickListener(v->showUserDetail(item,serial));page.addView(back,lp(-1,44));
+        TextView title=text(section,22,white,true);LinearLayout.LayoutParams tp=lp(-1,-2);tp.topMargin=dp(12);page.addView(title,tp);
+        LinearLayout panel=column();pad(panel,15,16,15,16);panel.setBackground(shape(0xff15223a,14));
+        LinearLayout.LayoutParams pp=lp(-1,-2);pp.topMargin=dp(14);page.addView(panel,pp);
+        if("DATA".equals(section)){
+            addDetailRow(panel,"NAME",item.optString("full_name","—"));
+            addDetailRow(panel,"MOBILE",item.optString("mobile","—"));
+            addDetailRow(panel,"DATE & TIME",formatDate(item.optString("created_at","")));
+            addDetailRow(panel,"RECORD ID",item.optString("id","—"));
+        }else{
+            panel.addView(text("No "+section.toLowerCase(Locale.US)+" saved for this user yet.",13,0xffc4cee0,false));
+            TextView note=text("This section is ready for its own user-specific content.",10,0xff8999b5,false);
+            LinearLayout.LayoutParams np=lp(-1,-2);np.topMargin=dp(7);panel.addView(note,np);
+        }
+        setContentView(page);
+    }
+
+    private void addDetailRow(LinearLayout parent,String label,String value){
+        parent.addView(text(label,9,0xff8495b3,true));
+        TextView v=text(value,13,white,true);LinearLayout.LayoutParams vp=lp(-1,-2);vp.topMargin=dp(3);vp.bottomMargin=dp(12);parent.addView(v,vp);
     }
 
     private void confirmDelete(String id,String name){
