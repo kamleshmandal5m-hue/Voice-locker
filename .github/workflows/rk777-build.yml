@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'RK777/adminapp/**'
+      - 'RK777/userapp/**'
       - 'RK777/build.gradle'
       - 'RK777/settings.gradle'
       - 'RK777/gradle.properties'
