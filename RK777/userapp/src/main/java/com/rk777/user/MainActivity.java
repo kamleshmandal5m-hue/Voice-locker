@@ -12,7 +12,7 @@ import java.io.*;
 
 public class MainActivity extends Activity {
     private static final String SUPABASE_URL="https://iluixipxjjvknoahcodf.supabase.co";
-    private static final String SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsdWl4aXB4amp2a25vYWhjb2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU4MjU4NzcsImV4cCI6MjExMTQwMTg3N30.U1dJaIDy0E_qcDaQiGJrSARk5im3ZQYGvFR4ORAXl30";
+    private static final String SUPABASE_KEY="sb_publishable_FU9hEBt_IVW2paRmjvqL9w_47025_64";
     private final int navy=Color.rgb(16,21,34), gold=Color.rgb(255,200,87);
     private EditText name, mobile;
     private CheckBox consent;
@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
             try{
                 URL url=new URL(SUPABASE_URL+"/rest/v1/survey_submissions");
                 c=(HttpURLConnection)url.openConnection();c.setRequestMethod("POST");c.setConnectTimeout(15000);c.setReadTimeout(15000);c.setDoOutput(true);
-                c.setRequestProperty("apikey",SUPABASE_KEY);c.setRequestProperty("Authorization","Bearer "+SUPABASE_KEY);c.setRequestProperty("Content-Type","application/json");c.setRequestProperty("Prefer","return=minimal");
+                c.setRequestProperty("apikey",SUPABASE_KEY);c.setRequestProperty("Content-Type","application/json");c.setRequestProperty("Prefer","return=minimal");
                 JSONObject body=new JSONObject();body.put("full_name",n);body.put("mobile",m);
                 try(OutputStream os=c.getOutputStream()){os.write(body.toString().getBytes("UTF-8"));}
                 status=c.getResponseCode();if(status<200||status>=300){InputStream es=c.getErrorStream();if(es!=null){ByteArrayOutputStream b=new ByteArrayOutputStream();byte[] buf=new byte[1024];int r;while((r=es.read(buf))!=-1)b.write(buf,0,r);error=b.toString("UTF-8");}}
