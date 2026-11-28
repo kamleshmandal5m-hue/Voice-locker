@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
                 c = (HttpURLConnection)u.openConnection(); c.setRequestMethod("GET");
                 c.setConnectTimeout(15000); c.setReadTimeout(15000);
                 c.setRequestProperty("apikey", SUPABASE_KEY);
+                c.setRequestProperty("Authorization", "Bearer " + SUPABASE_KEY);
                 
                 code = c.getResponseCode();
                 InputStream is = code >= 200 && code < 300 ? c.getInputStream() : c.getErrorStream();
