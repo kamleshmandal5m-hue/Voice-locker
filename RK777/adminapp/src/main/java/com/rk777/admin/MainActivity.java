@@ -119,36 +119,52 @@ public class MainActivity extends Activity {
             TextView hint=text("New user entries will appear here",10,0xff9ba9c0,false);hint.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams hp=lp(-1,-2);hp.topMargin=dp(5);empty.addView(hint,hp);list.addView(empty,lp(-1,-2));return;
         }
+        LinearLayout gridRow=null;
         for(int i=0;i<total;i++){
+            if(i%2==0){
+                gridRow=row();gridRow.setGravity(Gravity.TOP);
+                LinearLayout.LayoutParams rp=lp(-1,-2);if(i>0)rp.topMargin=dp(9);list.addView(gridRow,rp);
+            }
             JSONObject item=rows.optJSONObject(i);if(item==null)continue;
-            int serial=total-i;int accent=accents[i%accents.length];
-            LinearLayout card=column();pad(card,12,10,12,10);card.setBackground(shape(0xff15223a,16));
-            LinearLayout top=row();
-            TextView nameLabel=text("NAME",8,0xff8495b3,true);top.addView(nameLabel,new LinearLayout.LayoutParams(0,-2,1));
-            TextView number=text("#"+serial,10,white,true);number.setGravity(Gravity.CENTER);pad(number,10,5,10,5);number.setBackground(shape(accent,20));top.addView(number);
-            card.addView(top);
-            TextView name=text(item.optString("full_name","No name"),14,white,true);name.setMaxLines(2);
-            LinearLayout.LayoutParams nameLp=lp(-1,-2);nameLp.topMargin=dp(2);card.addView(name,nameLp);
-
-            LinearLayout fields=row();LinearLayout.LayoutParams fieldsLp=lp(-1,-2);fieldsLp.topMargin=dp(8);card.addView(fields,fieldsLp);
-            LinearLayout mobileBox=column();pad(mobileBox,9,7,7,7);mobileBox.setBackground(shape(0xff1c2d49,10));
-            mobileBox.addView(text("MOBILE",8,0xff8fa2c0,true));
-            TextView mobile=text(item.optString("mobile","—"),12,0xff66d8f4,true);mobile.setMaxLines(1);mobile.setSingleLine(true);mobileBox.addView(mobile);
-            fields.addView(mobileBox,new LinearLayout.LayoutParams(0,-2,1));
-            LinearLayout dateBox=column();pad(dateBox,9,7,7,7);dateBox.setBackground(shape(0xff1c2d49,10));
-            dateBox.addView(text("DATE & TIME",8,0xff8fa2c0,true));
-            TextView date=text(formatDate(item.optString("created_at","")),10,0xffd1d9e8,false);date.setMaxLines(1);date.setSingleLine(true);dateBox.addView(date);
-            LinearLayout.LayoutParams dateLp=new LinearLayout.LayoutParams(0,-2,1);dateLp.leftMargin=dp(7);fields.addView(dateBox,dateLp);
-
-            LinearLayout actions=row();actions.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
-            Button deleteButton=new Button(this);deleteButton.setText("DELETE");deleteButton.setTextSize(9);deleteButton.setTextColor(0xffff8795);
-            deleteButton.setAllCaps(false);deleteButton.setMinHeight(0);deleteButton.setMinimumHeight(0);deleteButton.setPadding(dp(9),0,dp(9),0);
-            deleteButton.setBackground(shape(0xff3a2638,9));
-            LinearLayout.LayoutParams deleteLp=lp(78,30);deleteLp.topMargin=dp(7);actions.addView(deleteButton,deleteLp);
-            String recordId=item.optString("id","");String recordName=item.optString("full_name","this entry");
-            deleteButton.setOnClickListener(v->confirmDelete(recordId,recordName));card.addView(actions);
-            LinearLayout.LayoutParams clp=lp(-1,-2);clp.topMargin=dp(8);list.addView(card,clp);
+            View card=createRecordCard(item,total-i,i);
+            LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,-2,1);
+            if(i%2==1)cp.leftMargin=dp(8);
+            gridRow.addView(card,cp);
         }
+        if(total%2==1){
+            View blank=new View(this);gridRow.addView(blank,new LinearLayout.LayoutParams(0,1,1));
+        }
+    }
+
+    private View createRecordCard(JSONObject item,int serial,int index){
+        int accent=accents[index%accents.length];
+        LinearLayout card=column();pad(card,10,10,10,10);card.setBackground(shape(0xff15223a,14));
+        LinearLayout top=row();
+        TextView label=text("ENTRY",8,0xff8495b3,true);top.addView(label,new LinearLayout.LayoutParams(0,-2,1));
+        TextView number=text("#"+serial,10,white,true);number.setGravity(Gravity.CENTER);pad(number,9,4,9,4);number.setBackground(shape(accent,18));top.addView(number);
+        card.addView(top);
+
+        card.addView(text("NAME",8,0xff8495b3,true));
+        TextView name=text(item.optString("full_name","No name"),12,white,true);name.setMaxLines(2);
+        LinearLayout.LayoutParams np=lp(-1,-2);np.topMargin=dp(2);card.addView(name,np);
+
+        TextView mobileLabel=text("MOBILE",8,0xff8495b3,true);
+        LinearLayout.LayoutParams mlp=lp(-1,-2);mlp.topMargin=dp(8);card.addView(mobileLabel,mlp);
+        TextView mobile=text(item.optString("mobile","—"),11,0xff66d8f4,true);mobile.setSingleLine(true);mobile.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams mp=lp(-1,-2);mp.topMargin=dp(2);card.addView(mobile,mp);
+
+        TextView dateLabel=text("DATE & TIME",8,0xff8495b3,true);
+        LinearLayout.LayoutParams dlp=lp(-1,-2);dlp.topMargin=dp(8);card.addView(dateLabel,dlp);
+        TextView date=text(formatDate(item.optString("created_at","")),9,0xffd1d9e8,false);date.setMaxLines(2);
+        LinearLayout.LayoutParams dtp=lp(-1,-2);dtp.topMargin=dp(2);card.addView(date,dtp);
+
+        Button deleteButton=new Button(this);deleteButton.setText("DELETE");deleteButton.setTextSize(9);deleteButton.setTextColor(0xffff8795);
+        deleteButton.setAllCaps(false);deleteButton.setMinHeight(0);deleteButton.setMinimumHeight(0);deleteButton.setPadding(dp(5),0,dp(5),0);
+        deleteButton.setBackground(shape(0xff3a2638,8));
+        LinearLayout.LayoutParams delp=lp(-1,32);delp.topMargin=dp(9);card.addView(deleteButton,delp);
+        String recordId=item.optString("id","");String recordName=item.optString("full_name","this entry");
+        deleteButton.setOnClickListener(v->confirmDelete(recordId,recordName));
+        return card;
     }
 
     private void confirmDelete(String id,String name){
