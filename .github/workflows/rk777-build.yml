@@ -1,4 +1,4 @@
-name: RK777 Admin APK Build
+name: RK777 APK Build
 on:
   push:
     paths:
@@ -12,7 +12,7 @@ on:
 permissions:
   contents: read
 jobs:
-  build-admin:
+  build-apks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,10 +23,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Build Admin APK only
+      - name: Build User and Admin APKs
         working-directory: RK777
-        run: gradle :adminapp:assembleDebug
+        run: gradle :userapp:assembleDebug :adminapp:assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: RK-777-Admin-APK
-          path: RK777/adminapp/build/outputs/apk/debug/*.apk
+          name: RK-777-APKs
+          path: |
+            RK777/userapp/build/outputs/apk/debug/*.apk
+            RK777/adminapp/build/outputs/apk/debug/*.apk
