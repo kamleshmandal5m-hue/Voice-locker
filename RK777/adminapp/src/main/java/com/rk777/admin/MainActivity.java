@@ -203,8 +203,8 @@ public class MainActivity extends Activity {
             if(value.isEmpty())return "Time unavailable";
             // Supabase timestamptz is returned with an explicit UTC/offset suffix.
             // Strip fractional seconds only; preserve Z or the numeric UTC offset.
-            value=value.replaceFirst("(\\\\.\\\\d+)(Z|[+-]\\\\d{2}:\\\\d{2})$","$2");
-            if(value.matches(".*[+-]\\\\d{2}:\\\\d{2}$")||value.endsWith("Z")){
+            value=value.replaceFirst("(\\.\\d+)(Z|[+-]\\d{2}:\\d{2})$","$2");
+            if(value.matches(".*[+-]\\d{2}:\\d{2}$")||value.endsWith("Z")){
                 SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX",Locale.US);
                 in.setLenient(false);
                 Date d=in.parse(value);
