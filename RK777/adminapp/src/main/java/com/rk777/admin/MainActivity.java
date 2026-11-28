@@ -198,8 +198,28 @@ public class MainActivity extends Activity {
     }
 
     private String formatDate(String raw){
-        try{SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",Locale.US);Date d=in.parse(raw.substring(0,19));return new SimpleDateFormat("dd MMM yyyy, hh:mm a",Locale.getDefault()).format(d);}
-        catch(Exception e){return raw.replace("T"," ");}
+        try{
+            String value=raw==null?"":raw.trim();
+            if(value.isEmpty())return "Time unavailable";
+            // Supabase timestamptz is returned with an explicit UTC/offset suffix.
+            // Strip fractional seconds only; preserve Z or the numeric UTC offset.
+            value=value.replaceFirst("(\\\\.\\\\d+)(Z|[+-]\\\\d{2}:\\\\d{2})$","$2");
+            if(value.matches(".*[+-]\\\\d{2}:\\\\d{2}$")||value.endsWith("Z")){
+                SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX",Locale.US);
+                in.setLenient(false);
+                Date d=in.parse(value);
+                SimpleDateFormat out=new SimpleDateFormat("dd MMM yyyy, hh:mm a",Locale.ENGLISH);
+                out.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Kolkata"));
+                return out.format(d)+" IST";
+            }
+            // Older rows without an offset are interpreted as UTC (Supabase timestamptz).
+            SimpleDateFormat in=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",Locale.US);
+            in.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            Date d=in.parse(value.substring(0,19));
+            SimpleDateFormat out=new SimpleDateFormat("dd MMM yyyy, hh:mm a",Locale.ENGLISH);
+            out.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Kolkata"));
+            return out.format(d)+" IST";
+        }catch(Exception e){return raw==null?"Time unavailable":raw;}
     }
     private String read(InputStream is)throws Exception{
         if(is==null)return "";ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[2048];int n;
