@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class MainActivity extends Activity {
     private static final String SUPABASE_URL = "https://iluixipxjjvknoahcodf.supabase.co";
-    private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsdWl4aXB4amp2a25vYWhjb2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU4MjU4NzcsImV4cCI6MjExMTQwMTg3N30.U1dJaIDy0E_qcDaQiGJrSARk5im3ZQYGvFR4ORAXl30";
+    private static final String SUPABASE_KEY = BuildConfig.SUPABASE_KEY;
 
     private final int navy=0xff0b1020, panel=0xff151f35, white=0xfff7f9ff, muted=0xffaab6cc;
     private final int[] accents={0xff6c63ff,0xff00bfa6,0xffff9f43,0xffec5b9b,0xff38a6ff,0xff9b7bff};
@@ -129,8 +129,63 @@ public class MainActivity extends Activity {
             body.addView(top);
             TextView mobile=text("☎  "+item.optString("mobile","—"),13,0xff72d9ff,true); LinearLayout.LayoutParams mlp=lp(-1,-2); mlp.topMargin=dp(9); body.addView(mobile,mlp);
             TextView date=text("◷  "+formatDate(item.optString("created_at","")),10,muted,false); LinearLayout.LayoutParams dlp=lp(-1,-2); dlp.topMargin=dp(5); body.addView(date,dlp);
+
+            LinearLayout footer=row(); footer.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+            Button deleteButton=new Button(this); deleteButton.setText("▣  DELETE"); deleteButton.setTextSize(11); deleteButton.setTextColor(Color.WHITE);
+            deleteButton.setAllCaps(false); deleteButton.setMinHeight(0); deleteButton.setMinimumHeight(0); deleteButton.setPadding(dp(14),0,dp(14),0);
+            deleteButton.setBackground(gradient(0xffe3485b,0xffb92348,12));
+            LinearLayout.LayoutParams deleteLp=lp(112,38); deleteLp.topMargin=dp(12); footer.addView(deleteButton,deleteLp);
+            String recordId=item.optString("id","");
+            String recordName=item.optString("full_name","this entry");
+            deleteButton.setOnClickListener(v->confirmDelete(recordId,recordName));
+            body.addView(footer);
             LinearLayout.LayoutParams clp=lp(-1,-2); clp.topMargin=dp(10); list.addView(card,clp);
         }
+    }
+
+    private void confirmDelete(String id,String name){
+        if(id==null||id.trim().isEmpty()){
+            new android.app.AlertDialog.Builder(this).setTitle("Cannot delete")
+                .setMessage("This record has no ID, so it cannot be deleted safely.")
+                .setPositiveButton("OK",null).show();
+            return;
+        }
+        new android.app.AlertDialog.Builder(this)
+            .setTitle("Confirm delete")
+            .setMessage("Are you sure you want to permanently delete the entry for "+name+"?")
+            .setNegativeButton("CANCEL",(d,w)->d.dismiss())
+            .setPositiveButton("DELETE",(d,w)->deleteSubmission(id))
+            .show();
+    }
+
+    private void deleteSubmission(String id){
+        new Thread(()->{
+            HttpURLConnection c=null; int code=0; String response="";
+            try{
+                String encoded=java.net.URLEncoder.encode(id,"UTF-8");
+                URL u=new URL(SUPABASE_URL+"/rest/v1/survey_submissions?id=eq."+encoded);
+                c=(HttpURLConnection)u.openConnection(); c.setRequestMethod("DELETE");
+                c.setConnectTimeout(15000); c.setReadTimeout(15000);
+                c.setRequestProperty("apikey",SUPABASE_KEY);
+                c.setRequestProperty("Authorization","Bearer "+SUPABASE_KEY);
+                c.setRequestProperty("Prefer","return=minimal");
+                code=c.getResponseCode();
+                InputStream is=code>=200&&code<300?c.getInputStream():c.getErrorStream();
+                if(is!=null)response=read(is);
+            }catch(Exception e){response=e.getMessage()==null?"Network error":e.getMessage();}
+            finally{if(c!=null)c.disconnect();}
+            final int resultCode=code; final String result=response;
+            runOnUiThread(()->{
+                if(resultCode>=200&&resultCode<300){
+                    Toast.makeText(this,"Entry deleted",Toast.LENGTH_SHORT).show();
+                    loadSubmissions();
+                }else{
+                    new android.app.AlertDialog.Builder(this).setTitle("Delete failed ("+resultCode+")")
+                        .setMessage(result.isEmpty()?"Supabase did not allow this deletion. Check the DELETE policy.":result)
+                        .setPositiveButton("OK",null).show();
+                }
+            });
+        }).start();
     }
 
     private String formatDate(String raw){
