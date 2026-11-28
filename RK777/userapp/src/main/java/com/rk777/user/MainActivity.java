@@ -12,7 +12,7 @@ import java.io.*;
 
 public class MainActivity extends Activity {
     private static final String SUPABASE_URL="https://iluixipxjjvknoahcodf.supabase.co";
-    private static final String SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsdWl4aXBxamp2a25vYWhjb2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU4MjU4NzcsImV4cCI6MjExMTQwMTg3N30.U1dJaIDy0E_qcDaQiGJrSARk5im3ZQYGvFR4ORAXl30";
+    private static final String SUPABASE_KEY="sb_publishable_FU9hEBt_IVW2paRmjvqL9w_47025_64";
     private final int navy=Color.rgb(16,21,34), gold=Color.rgb(255,200,87);
     private EditText name, mobile;
     private CheckBox consent;
